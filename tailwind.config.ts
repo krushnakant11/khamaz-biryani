@@ -12,6 +12,9 @@ const config: Config = {
         secondary: '#ea580c',
         dark: '#0a0a0a',
       },
+      fontFamily: {
+        sans: ['system-ui', 'sans-serif'],
+      },
     },
   },
   plugins: [],

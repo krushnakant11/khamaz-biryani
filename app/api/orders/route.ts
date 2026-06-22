@@ -1,31 +1,46 @@
 import { NextRequest, NextResponse } from 'next/server';
 
+const orders: any[] = [];
+
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { items, totalPrice, customerName, customerPhone, customerEmail } = body;
+    const { items, totalPrice, customerName, customerPhone, customerEmail, deliveryAddress } = body;
 
-    if (!items || !customerName || !customerPhone) {
+    if (!items || !customerName || !customerPhone || !customerEmail) {
       return NextResponse.json(
         { error: 'Missing required fields' },
         { status: 400 }
       );
     }
 
-    console.log('Order received:', {
+    const orderId = `ORD-${Date.now()}-${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
+
+    const order = {
+      id: orderId,
+      orderId,
       items,
       totalPrice,
       customerName,
       customerPhone,
       customerEmail,
-      timestamp: new Date(),
-    });
+      deliveryAddress,
+      status: 'pending',
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+
+    orders.push(order);
+
+    // TODO: Send confirmation email
+    console.log('Order placed:', order);
 
     return NextResponse.json(
       {
         success: true,
-        orderId: `ORD-${Date.now()}`,
+        orderId,
         message: 'Order placed successfully',
+        order,
       },
       { status: 201 }
     );
@@ -36,4 +51,8 @@ export async function POST(request: NextRequest) {
       { status: 500 }
     );
   }
+}
+
+export async function GET() {
+  return NextResponse.json(orders);
 }
