@@ -4,13 +4,30 @@ import { menuItems } from '@/data/menu';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { useState } from 'react';
+import { ShoppingCart } from 'lucide-react';
 
 export default function MenuSection() {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [addedItem, setAddedItem] = useState<string | null>(null);
   const categories = ['biryani', 'starters', 'main', 'sides', 'beverages'];
   const filtered = selectedCategory
     ? menuItems.filter((item) => item.category === selectedCategory)
     : menuItems;
+
+  const handleAddToCart = (item: any) => {
+    const cart = JSON.parse(localStorage.getItem('cart') || '[]');
+    const existing = cart.find((i: any) => i.id === item.id);
+
+    if (existing) {
+      existing.quantity += 1;
+    } else {
+      cart.push({ ...item, quantity: 1 });
+    }
+
+    localStorage.setItem('cart', JSON.stringify(cart));
+    setAddedItem(item.id);
+    setTimeout(() => setAddedItem(null), 2000);
+  };
 
   return (
     <section id="menu" className="py-24 bg-zinc-950">
@@ -26,7 +43,7 @@ export default function MenuSection() {
         <div className="flex justify-center gap-4 mb-12 flex-wrap">
           <button
             onClick={() => setSelectedCategory(null)}
-            className={`px-4 py-2 rounded-full transition ${
+            className={`px-4 py-2 rounded-full transition font-semibold ${
               selectedCategory === null
                 ? 'bg-amber-400 text-black'
                 : 'bg-zinc-800 text-white hover:bg-zinc-700'
@@ -38,7 +55,7 @@ export default function MenuSection() {
             <button
               key={cat}
               onClick={() => setSelectedCategory(cat)}
-              className={`px-4 py-2 rounded-full transition capitalize ${
+              className={`px-4 py-2 rounded-full transition capitalize font-semibold ${
                 selectedCategory === cat
                   ? 'bg-amber-400 text-black'
                   : 'bg-zinc-800 text-white hover:bg-zinc-700'
@@ -68,7 +85,7 @@ export default function MenuSection() {
                   className="w-full h-full object-cover group-hover:scale-110 transition duration-300"
                 />
                 {item.isVegan && (
-                  <div className="absolute top-3 right-3 bg-green-500 text-white px-3 py-1 rounded-full text-sm">
+                  <div className="absolute top-3 right-3 bg-green-500 text-white px-3 py-1 rounded-full text-sm font-semibold">
                     🌱 Vegan
                   </div>
                 )}
@@ -86,8 +103,15 @@ export default function MenuSection() {
                     {item.price}
                   </span>
 
-                  <button className="bg-orange-500 hover:bg-orange-600 px-4 py-2 rounded-lg text-white transition">
-                    Add
+                  <button
+                    onClick={() => handleAddToCart(item)}
+                    className={`p-2 rounded-lg transition ${
+                      addedItem === item.id
+                        ? 'bg-green-500 text-white'
+                        : 'bg-orange-500 hover:bg-orange-600 text-white'
+                    }`}
+                  >
+                    <ShoppingCart size={20} />
                   </button>
                 </div>
               </div>
